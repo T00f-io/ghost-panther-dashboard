@@ -1,122 +1,65 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const modules = [
+  { id: 'fitness', label: 'Fitness', icon: '⚔️' },
+  { id: 'finances', label: 'Finances', icon: '💰' },
+  { id: 'career', label: 'Career', icon: '🧠' },
+  { id: 'family', label: 'Family', icon: '🏠' },
+  { id: 'olympus', label: 'Olympus', icon: '🏛️' },
+]
+
+export default function App() {
+  const [active, setActive] = useState('fitness')
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+
+      {/* Header */}
+      <header className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+          <h1 className="text-xl font-bold tracking-wide text-white">Ghost Panther Protocol</h1>
+          <p className="text-xs text-zinc-500 tracking-widest uppercase">Personal Life OS</p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        <span className="text-xs text-zinc-600">T00f-io</span>
+      </header>
 
-      <div className="ticks"></div>
+      {/* Nav */}
+      <nav className="border-b border-zinc-800 px-6 flex gap-1">
+        {modules.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setActive(m.id)}
+            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              active === m.id
+                ? 'border-white text-white'
+                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            {m.icon} {m.label}
+          </button>
+        ))}
+      </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {/* Main content */}
+      <main className="flex-1 p-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold mb-1 capitalize">
+            {modules.find((m) => m.id === active)?.label}
+          </h2>
+          <p className="text-zinc-500 text-sm mb-6">Module coming soon.</p>
+
+          {/* Placeholder card grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="h-3 w-24 bg-zinc-800 rounded mb-3" />
+                <div className="h-8 w-16 bg-zinc-800 rounded" />
+              </div>
+            ))}
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </div>
   )
 }
-
-export default App
