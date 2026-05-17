@@ -10,6 +10,74 @@ function StatCard({ label, value }) {
   )
 }
 
+function InsightPanel({ session, movements }) {
+  const [insight, setInsight] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  async function generateInsight() {
+    setLoading(true)
+    setInsight(null)
+
+    const movementSummary = movements.map(m =>
+      `${m.section} -- ${m.movement} (${m.implement}) ${m.sets} sets x ${m.reps} @ ${m.weight}${m.notes && m.notes !== '—' ? ' | Note: ' + m.notes : ''}`
+    ).join('\n')
+
+    const prompt = `You are a performance coach analyzing a training session for an athlete named JC. He is 40 years old, has a protected spinal history requiring decompression and mobility work, and is targeting fat loss to 185 lbs by October 2026. He trains primarily with kettlebells, macebells, clubbells, sandbags, and barbells.
+
+Session date: ${session.date}
+Arc: ${session.arc_name}
+
+Session note:
+${session.notes || 'No session note logged.'}
+
+Movements logged:
+${movementSummary}
+
+Provide a concise analysis with three sections:
+1. PERFORMANCE -- What stood out, what was strong, what was off
+2. FLAGS -- Any injury signals, compensation patterns, or recovery concerns
+3. RECOMMENDATIONS -- One or two specific actions for the next session
+
+Keep it direct and coach-like. No fluff.`
+
+    try {
+      const response = await fetch('https://gpp-api-worker.t00f-io.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+      const data = await response.json()
+      const text = data.content?.[0]?.text || 'No insight returned.'
+      setInsight(text)
+    } catch (err) {
+      setInsight('Error generating insight. Please try again.')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="mt-4">
+      <button
+        onClick={generateInsight}
+        disabled={loading}
+        className="w-full py-2 px-4 rounded-lg border border-zinc-700 text-sm text-zinc-300 hover:border-white hover:text-white transition-colors disabled:opacity-50"
+      >
+        {loading ? 'Analyzing session...' : '⚡ Generate AI Insight'}
+      </button>
+
+      {insight && (
+        <div className="mt-3 bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">
+          {insight}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function FitnessModule() {
   const [sessions, setSessions] = useState([])
   const [selected, setSelected] = useState(null)
@@ -31,8 +99,6 @@ export default function FitnessModule() {
       if (sessionData) {
         setSessions(sessionData)
 
-        const currentArc = sessionData[0]?.arc_name || '—'
-
         const implementCount = {}
         movementData?.forEach(({ implement }) => {
           if (implement && implement !== 'Bodyweight') {
@@ -47,7 +113,6 @@ export default function FitnessModule() {
 
         setStats({
           totalSessions: sessionData.length,
-          currentArc,
           topImplement,
           lastSession: lastDate,
         })
@@ -138,6 +203,8 @@ export default function FitnessModule() {
                   </div>
                 ))}
               </div>
+
+              <InsightPanel session={selected} movements={movements} />
             </div>
           )}
         </div>
