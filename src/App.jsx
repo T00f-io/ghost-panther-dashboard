@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from './supabaseClient'
+import FitnessModule from './FitnessModule'
 
 const modules = [
   { id: 'fitness', label: 'Fitness', icon: '⚔️' },
@@ -43,20 +45,23 @@ export default function App() {
       {/* Main content */}
       <main className="flex-1 p-6">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold mb-1 capitalize">
-            {modules.find((m) => m.id === active)?.label}
-          </h2>
-          <p className="text-zinc-500 text-sm mb-6">Module coming soon.</p>
-
-          {/* Placeholder card grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <div className="h-3 w-24 bg-zinc-800 rounded mb-3" />
-                <div className="h-8 w-16 bg-zinc-800 rounded" />
+          {active === 'fitness' && <FitnessModule />}
+          {active !== 'fitness' && (
+            <>
+              <h2 className="text-2xl font-bold mb-1 capitalize">
+                {modules.find((m) => m.id === active)?.label}
+              </h2>
+              <p className="text-zinc-500 text-sm mb-6">Module coming soon.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <div className="h-3 w-24 bg-zinc-800 rounded mb-3" />
+                    <div className="h-8 w-16 bg-zinc-800 rounded" />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </main>
 
