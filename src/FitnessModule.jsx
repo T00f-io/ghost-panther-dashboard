@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import ReactMarkdown from 'react-markdown'
 
 function StatCard({ label, value }) {
   return (
@@ -70,8 +71,8 @@ Keep it direct and coach-like. No fluff.`
       </button>
 
       {insight && (
-        <div className="mt-3 bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">
-          {insight}
+        <div className="mt-3 bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-xs text-zinc-300 leading-relaxed prose prose-invert prose-xs max-w-none">
+          <ReactMarkdown>{insight}</ReactMarkdown>
         </div>
       )}
     </div>
