@@ -1,43 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 import ReactMarkdown from 'react-markdown'
-
-const ARC_START = new Date('2026-04-10')
-const ARC_END = new Date('2026-07-09')
-
-function ArcBanner() {
-  const today = new Date()
-  const totalDays = Math.round((ARC_END - ARC_START) / (1000 * 60 * 60 * 24))
-  const daysIn = Math.round((today - ARC_START) / (1000 * 60 * 60 * 24))
-  const daysLeft = Math.max(0, Math.round((ARC_END - today) / (1000 * 60 * 60 * 24)))
-  const progress = Math.min(100, Math.round((daysIn / totalDays) * 100))
-
-  return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <p className="text-xs text-zinc-500 uppercase tracking-widest">Current Arc</p>
-          <p className="text-sm font-bold text-white mt-0.5">Gohan: Controlled Power</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-zinc-500">Day {daysIn} of {totalDays}</p>
-          <p className="text-xs text-zinc-500">{daysLeft} days remaining</p>
-        </div>
-      </div>
-      <div className="w-full bg-zinc-800 rounded-full h-1.5">
-        <div
-          className="bg-white h-1.5 rounded-full transition-all"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-xs text-zinc-600">Apr 10</span>
-        <span className="text-xs text-zinc-500 font-medium">{progress}% complete</span>
-        <span className="text-xs text-zinc-600">Jul 9</span>
-      </div>
-    </div>
-  )
-}
+import ArcConfig from './ArcConfig'
 
 function StatCard({ label, value }) {
   return (
@@ -136,43 +100,45 @@ export default function FitnessModule() {
   const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({})
+  const [arcKey, setArcKey] = useState(0)
 
   useEffect(() => {
-    async function fetchData() {
-      const { data: sessionData } = await supabase
-        .from('workout_sessions')
-        .select('*')
-        .order('date', { ascending: false })
-
-      const { data: movementData } = await supabase
-        .from('workout_movements')
-        .select('implement')
-
-      if (sessionData) {
-        setSessions(sessionData)
-
-        const implementCount = {}
-        movementData?.forEach(({ implement }) => {
-          if (implement && implement !== 'Bodyweight') {
-            implementCount[implement] = (implementCount[implement] || 0) + 1
-          }
-        })
-        const topImplement = Object.entries(implementCount)
-          .sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
-
-        const lastDate = new Date(sessionData[0]?.date + 'T00:00:00')
-          .toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-
-        setStats({
-          totalSessions: sessionData.length,
-          topImplement,
-          lastSession: lastDate,
-        })
-      }
-      setLoading(false)
-    }
     fetchData()
   }, [])
+
+  async function fetchData() {
+    const { data: sessionData } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .order('date', { ascending: false })
+
+    const { data: movementData } = await supabase
+      .from('workout_movements')
+      .select('implement')
+
+    if (sessionData) {
+      setSessions(sessionData)
+
+      const implementCount = {}
+      movementData?.forEach(({ implement }) => {
+        if (implement && implement !== 'Bodyweight') {
+          implementCount[implement] = (implementCount[implement] || 0) + 1
+        }
+      })
+      const topImplement = Object.entries(implementCount)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
+
+      const lastDate = new Date(sessionData[0]?.date + 'T00:00:00')
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+      setStats({
+        totalSessions: sessionData.length,
+        topImplement,
+        lastSession: lastDate,
+      })
+    }
+    setLoading(false)
+  }
 
   async function handleSelect(session) {
     setSelected(session)
@@ -188,7 +154,7 @@ export default function FitnessModule() {
   return (
     <div className="flex flex-col gap-6">
 
-      <ArcBanner />
+      <ArcConfig key={arcKey} onUpdate={() => setArcKey(k => k + 1)} />
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard label="Total Sessions" value={stats.totalSessions} />
