@@ -156,7 +156,7 @@ export default function FitnessModule() {
 
       <ArcConfig key={arcKey} onUpdate={() => setArcKey(k => k + 1)} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <StatCard label="Total Sessions" value={stats.totalSessions} />
         <StatCard label="Last Session" value={stats.lastSession} />
         <StatCard label="Top Implement" value={stats.topImplement} />

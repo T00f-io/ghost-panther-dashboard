@@ -17,7 +17,7 @@ export default function App() {
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'weight', label: '⚖️ Weight' },
     { id: 'analytics', label: '📊 Analytics' },
-    { id: 'log', label: '➕ Log Workout' },
+    { id: 'log', label: '➕ Log' },
   ]
 
   return (
