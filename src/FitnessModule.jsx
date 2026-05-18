@@ -2,6 +2,43 @@ import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 import ReactMarkdown from 'react-markdown'
 
+const ARC_START = new Date('2026-04-10')
+const ARC_END = new Date('2026-07-09')
+
+function ArcBanner() {
+  const today = new Date()
+  const totalDays = Math.round((ARC_END - ARC_START) / (1000 * 60 * 60 * 24))
+  const daysIn = Math.round((today - ARC_START) / (1000 * 60 * 60 * 24))
+  const daysLeft = Math.max(0, Math.round((ARC_END - today) / (1000 * 60 * 60 * 24)))
+  const progress = Math.min(100, Math.round((daysIn / totalDays) * 100))
+
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-xs text-zinc-500 uppercase tracking-widest">Current Arc</p>
+          <p className="text-sm font-bold text-white mt-0.5">Gohan: Controlled Power</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-zinc-500">Day {daysIn} of {totalDays}</p>
+          <p className="text-xs text-zinc-500">{daysLeft} days remaining</p>
+        </div>
+      </div>
+      <div className="w-full bg-zinc-800 rounded-full h-1.5">
+        <div
+          className="bg-white h-1.5 rounded-full transition-all"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-xs text-zinc-600">Apr 10</span>
+        <span className="text-xs text-zinc-500 font-medium">{progress}% complete</span>
+        <span className="text-xs text-zinc-600">Jul 9</span>
+      </div>
+    </div>
+  )
+}
+
 function StatCard({ label, value }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
@@ -151,11 +188,12 @@ export default function FitnessModule() {
   return (
     <div className="flex flex-col gap-6">
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <ArcBanner />
+
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard label="Total Sessions" value={stats.totalSessions} />
         <StatCard label="Last Session" value={stats.lastSession} />
         <StatCard label="Top Implement" value={stats.topImplement} />
-        <StatCard label="Current Arc" value="Gohan: Controlled Power" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
