@@ -6,8 +6,10 @@ export default function InsightsModule() {
   const [sessions, setSessions] = useState([])
   const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
-  const [insight, setInsight] = useState(null)
-  const [generating, setGenerating] = useState(false)
+  const [arcInsight, setArcInsight] = useState(null)
+  const [weekInsight, setWeekInsight] = useState(null)
+  const [generatingArc, setGeneratingArc] = useState(false)
+  const [generatingWeek, setGeneratingWeek] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -27,22 +29,7 @@ export default function InsightsModule() {
     fetchData()
   }, [])
 
-  async function generateCrossSessionInsight() {
-    setGenerating(true)
-    setInsight(null)
-
-    const sessionSummaries = sessions.map(s => {
-      const sessionMovements = movements
-        .filter(m => m.session_id === s.id)
-        .map(m => `${m.movement} (${m.implement}) ${m.sets}x${m.reps} @ ${m.weight}${m.notes ? ' | ' + m.notes : ''}`)
-        .join(', ')
-
-      return `${s.date} -- ${s.arc_name}
-Notes: ${s.notes || 'None'}
-Movements: ${sessionMovements}`
-    }).join('\n\n')
-
-    const prompt = `You are JC's dedicated training coach and journal analyst. Your role is critical-thinking expert advisor -- skeptical by default, research-based, results-oriented. Do not aim to agree or validate. Challenge flawed thinking directly using logic, evidence, and best practices. No fluff, filler, or performative language. Do not open with meta commentary or announce intent. Be clear, concise, and direct.
+  const COACH_PROFILE = `You are JC's dedicated training coach and journal analyst. Your role is critical-thinking expert advisor -- skeptical by default, research-based, results-oriented. Do not aim to agree or validate. Challenge flawed thinking directly using logic, evidence, and best practices. No fluff, filler, or performative language. Do not open with meta commentary or announce intent. Be clear, concise, and direct.
 
 Athlete profile:
 - Age: 40, Tampa FL
@@ -50,7 +37,21 @@ Athlete profile:
 - Current phase: Gohan: Controlled Power
 - Training style: Functional strength, KB, sandbag, macebell, clubbell, axel bar, barbell, bodybuilding accessories
 - Primary goals: Fat loss to 185 lbs by October 2026, postural correction, upper chest development, left hip complex strengthening, longevity
-- Known flags: L5-S1 history (asymptomatic), anterior pelvic tilt, forward head posture, thoracic kyphosis, left hamstring tightness, bilateral shoulder impingement history (currently resolved), recurring bilateral knee observations under load, left hip flexor weakness confirmed
+- Known flags: L5-S1 history (asymptomatic), anterior pelvic tilt, forward head posture, thoracic kyphosis, left hamstring tightness, bilateral shoulder impingement history (currently resolved), recurring bilateral knee observations under load, left hip flexor weakness confirmed`
+
+  async function generateArcInsight() {
+    setGeneratingArc(true)
+    setArcInsight(null)
+
+    const sessionSummaries = sessions.map(s => {
+      const sessionMovements = movements
+        .filter(m => m.session_id === s.id)
+        .map(m => `${m.movement} (${m.implement}) ${m.sets}x${m.reps} @ ${m.weight}${m.notes ? ' | ' + m.notes : ''}`)
+        .join(', ')
+      return `${s.date} -- ${s.arc_name}\nNotes: ${s.notes || 'None'}\nMovements: ${sessionMovements}`
+    }).join('\n\n')
+
+    const prompt = `${COACH_PROFILE}
 
 Full training history (${sessions.length} sessions):
 
@@ -83,12 +84,74 @@ Keep it direct. Reference specific sessions and dates where relevant. If the dat
         })
       })
       const data = await response.json()
-      const text = data.content?.[0]?.text || 'No insight returned.'
-      setInsight(text)
+      setArcInsight(data.content?.[0]?.text || 'No insight returned.')
     } catch (err) {
-      setInsight('Error generating insight. Please try again.')
+      setArcInsight('Error generating insight. Please try again.')
     }
-    setGenerating(false)
+    setGeneratingArc(false)
+  }
+
+  async function generateWeekInsight() {
+    setGeneratingWeek(true)
+    setWeekInsight(null)
+
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+    const recentSessions = sessions.filter(s => new Date(s.date + 'T00:00:00') >= sevenDaysAgo)
+
+    if (recentSessions.length === 0) {
+      setWeekInsight('No sessions logged in the last 7 days.')
+      setGeneratingWeek(false)
+      return
+    }
+
+    const sessionSummaries = recentSessions.map(s => {
+      const sessionMovements = movements
+        .filter(m => m.session_id === s.id)
+        .map(m => `${m.movement} (${m.implement}) ${m.sets}x${m.reps} @ ${m.weight}${m.notes ? ' | ' + m.notes : ''}`)
+        .join(', ')
+      return `${s.date} -- ${s.arc_name}\nNotes: ${s.notes || 'None'}\nMovements: ${sessionMovements}`
+    }).join('\n\n')
+
+    const prompt = `${COACH_PROFILE}
+
+Last 7 days of training (${recentSessions.length} sessions):
+
+${sessionSummaries}
+
+Generate a weekly training summary with these sections:
+
+**WEEK SUMMARY**
+What got done this week. Volume, session count, session types. Direct assessment of whether this week moved the needle.
+
+**FLAGS THIS WEEK**
+Any injury signals, fatigue indicators, or compensation patterns from this week only. If nothing flagged, say so directly.
+
+**READINESS ASSESSMENT**
+Based on this week's load and recovery -- what is JC's likely readiness for the coming week? What should he prioritize or avoid?
+
+**THIS WEEK'S FOCUS**
+One or two specific priorities for the next 7 days tied to the current arc goals.
+
+Keep it tight. This is a weekly check-in, not an arc review.`
+
+    try {
+      const response = await fetch('https://gpp-api-worker.t00f-io.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+      const data = await response.json()
+      setWeekInsight(data.content?.[0]?.text || 'No insight returned.')
+    } catch (err) {
+      setWeekInsight('Error generating insight. Please try again.')
+    }
+    setGeneratingWeek(false)
   }
 
   if (loading) return <p className="text-zinc-500">Loading data...</p>
@@ -96,21 +159,41 @@ Keep it direct. Reference specific sessions and dates where relevant. If the dat
   return (
     <div className="flex flex-col gap-6">
 
+      {/* Weekly report */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-        <h2 className="text-lg font-bold text-white mb-1">Cross-Session Analysis</h2>
-        <p className="text-xs text-zinc-500 mb-4">AI coaching report across all {sessions.length} logged sessions in this arc.</p>
+        <h2 className="text-lg font-bold text-white mb-1">Weekly Summary</h2>
+        <p className="text-xs text-zinc-500 mb-4">AI coaching report for the last 7 days.</p>
         <button
-          onClick={generateCrossSessionInsight}
-          disabled={generating}
+          onClick={generateWeekInsight}
+          disabled={generatingWeek}
           className="w-full py-2 px-4 rounded-lg bg-white text-zinc-950 text-sm font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50"
         >
-          {generating ? 'Analyzing full arc...' : '⚡ Generate Arc Report'}
+          {generatingWeek ? 'Analyzing this week...' : '📅 Generate Weekly Report'}
         </button>
       </div>
 
-      {insight && (
+      {weekInsight && (
         <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 text-sm text-zinc-300 leading-relaxed prose prose-invert max-w-none">
-          <ReactMarkdown>{insight}</ReactMarkdown>
+          <ReactMarkdown>{weekInsight}</ReactMarkdown>
+        </div>
+      )}
+
+      {/* Arc report */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+        <h2 className="text-lg font-bold text-white mb-1">Arc Report</h2>
+        <p className="text-xs text-zinc-500 mb-4">AI coaching report across all {sessions.length} logged sessions in this arc.</p>
+        <button
+          onClick={generateArcInsight}
+          disabled={generatingArc}
+          className="w-full py-2 px-4 rounded-lg border border-zinc-700 text-sm text-zinc-300 hover:border-white hover:text-white transition-colors disabled:opacity-50"
+        >
+          {generatingArc ? 'Analyzing full arc...' : '⚡ Generate Arc Report'}
+        </button>
+      </div>
+
+      {arcInsight && (
+        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 text-sm text-zinc-300 leading-relaxed prose prose-invert max-w-none">
+          <ReactMarkdown>{arcInsight}</ReactMarkdown>
         </div>
       )}
 
