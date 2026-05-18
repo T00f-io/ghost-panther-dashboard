@@ -2,6 +2,7 @@ import { useState } from 'react'
 import FitnessModule from './FitnessModule'
 import LogEntry from './LogEntry'
 import WeightModule from './WeightModule'
+import AnalyticsModule from './AnalyticsModule'
 
 export default function App() {
   const [view, setView] = useState('journal')
@@ -15,6 +16,7 @@ export default function App() {
   const tabs = [
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'weight', label: '⚖️ Weight' },
+    { id: 'analytics', label: '📊 Analytics' },
     { id: 'log', label: '➕ Log Workout' },
   ]
 
@@ -52,6 +54,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto">
           {view === 'journal' && <FitnessModule key={refreshKey} />}
           {view === 'weight' && <WeightModule />}
+          {view === 'analytics' && <AnalyticsModule />}
           {view === 'log' && <LogEntry onSuccess={handleLogSuccess} />}
         </div>
       </main>
