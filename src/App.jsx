@@ -5,6 +5,7 @@ import WeightModule from './WeightModule'
 import AnalyticsModule from './AnalyticsModule'
 import InsightsModule from './InsightsModule'
 import ProgramModule from './ProgramModule'
+import MovementLibrary from './MovementLibrary'
 
 export default function App() {
   const [view, setView] = useState('journal')
@@ -18,6 +19,7 @@ export default function App() {
   const tabs = [
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'program', label: '📋 Program' },
+    { id: 'movements', label: '🗂️ Movements' },
     { id: 'weight', label: '⚖️ Weight' },
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
@@ -58,6 +60,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto">
           {view === 'journal' && <FitnessModule key={refreshKey} />}
           {view === 'program' && <ProgramModule />}
+          {view === 'movements' && <MovementLibrary />}
           {view === 'weight' && <WeightModule />}
           {view === 'analytics' && <AnalyticsModule />}
           {view === 'insights' && <InsightsModule />}
