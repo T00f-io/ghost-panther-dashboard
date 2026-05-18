@@ -4,6 +4,7 @@ import LogEntry from './LogEntry'
 import WeightModule from './WeightModule'
 import AnalyticsModule from './AnalyticsModule'
 import InsightsModule from './InsightsModule'
+import ProgramModule from './ProgramModule'
 
 export default function App() {
   const [view, setView] = useState('journal')
@@ -16,6 +17,7 @@ export default function App() {
 
   const tabs = [
     { id: 'journal', label: '⚔️ Journal' },
+    { id: 'program', label: '📋 Program' },
     { id: 'weight', label: '⚖️ Weight' },
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
@@ -35,12 +37,12 @@ export default function App() {
       </header>
 
       {/* Nav */}
-      <nav className="border-b border-zinc-800 bg-zinc-950 px-6 flex gap-1">
+      <nav className="border-b border-zinc-800 bg-zinc-950 px-6 flex gap-1 overflow-x-auto">
         {tabs.map(t => (
           <button
             key={t.id}
             onClick={() => setView(t.id)}
-            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
               view === t.id
                 ? 'border-white text-white'
                 : 'border-transparent text-zinc-400 hover:text-zinc-200'
@@ -55,6 +57,7 @@ export default function App() {
       <main className="flex-1 p-6">
         <div className="max-w-5xl mx-auto">
           {view === 'journal' && <FitnessModule key={refreshKey} />}
+          {view === 'program' && <ProgramModule />}
           {view === 'weight' && <WeightModule />}
           {view === 'analytics' && <AnalyticsModule />}
           {view === 'insights' && <InsightsModule />}
