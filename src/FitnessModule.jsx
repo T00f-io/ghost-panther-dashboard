@@ -23,23 +23,37 @@ function InsightPanel({ session, movements }) {
       `${m.section} -- ${m.movement} (${m.implement}) ${m.sets} sets x ${m.reps} @ ${m.weight}${m.notes && m.notes !== '—' ? ' | Note: ' + m.notes : ''}`
     ).join('\n')
 
-    const prompt = `You are a performance coach analyzing a training session for an athlete named JC. He is 40 years old, has a protected spinal history requiring decompression and mobility work, and is targeting fat loss to 185 lbs by October 2026. He trains primarily with kettlebells, macebells, clubbells, sandbags, and barbells.
+    const prompt = `You are JC's dedicated training coach and journal analyst. Your role is critical-thinking expert advisor -- skeptical by default, research-based, results-oriented. Do not aim to agree or validate. Challenge flawed thinking directly using logic, evidence, and best practices. No fluff, filler, or performative language. Do not open with meta commentary or announce intent. Be clear, concise, and direct.
+
+Athlete profile:
+- Age: 40, Tampa FL
+- Program: Gohan Training Arc (90 days, ends July 9, 2026)
+- Current phase: Gohan: Controlled Power
+- Training style: Functional strength, KB, sandbag, macebell, clubbell, axel bar, barbell, bodybuilding accessories
+- Primary goals: Fat loss to 185 lbs by October 2026, postural correction, upper chest development, left hip complex strengthening, longevity
+- Known flags: L5-S1 history (asymptomatic), anterior pelvic tilt, forward head posture, thoracic kyphosis, left hamstring tightness, bilateral shoulder impingement history (currently resolved), recurring bilateral knee observations under load, left hip flexor weakness confirmed
 
 Session date: ${session.date}
 Arc: ${session.arc_name}
 
-Session note:
+Session notes:
 ${session.notes || 'No session note logged.'}
 
 Movements logged:
 ${movementSummary}
 
-Provide a concise analysis with three sections:
-1. PERFORMANCE -- What stood out, what was strong, what was off
-2. FLAGS -- Any injury signals, compensation patterns, or recovery concerns
-3. RECOMMENDATIONS -- One or two specific actions for the next session
+Analyze this session with three sections:
 
-Keep it direct and coach-like. No fluff.`
+**PERFORMANCE**
+What stood out, what was strong, what was off. Reference specific movements and loads. Only note what is meaningful -- do not editorialize every movement.
+
+**FLAGS**
+Any injury signals, compensation patterns, or recovery concerns. Cross-reference known flags above. If nothing flagged, say so directly.
+
+**RECOMMENDATIONS**
+One or two specific, actionable items for the next session. No generic advice.
+
+Keep post-analysis commentary tight -- only what is actionable or meaningfully observed. If something is incomplete or unclear from the log, say so instead of filling gaps.`
 
     try {
       const response = await fetch('https://gpp-api-worker.t00f-io.workers.dev', {
@@ -141,7 +155,7 @@ export default function FitnessModule() {
         <StatCard label="Total Sessions" value={stats.totalSessions} />
         <StatCard label="Last Session" value={stats.lastSession} />
         <StatCard label="Top Implement" value={stats.topImplement} />
-        <StatCard label="Current Arc" value="Controlled Power" />
+        <StatCard label="Current Arc" value="Gohan: Controlled Power" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
