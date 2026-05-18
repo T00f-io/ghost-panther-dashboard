@@ -3,6 +3,7 @@ import FitnessModule from './FitnessModule'
 import LogEntry from './LogEntry'
 import WeightModule from './WeightModule'
 import AnalyticsModule from './AnalyticsModule'
+import InsightsModule from './InsightsModule'
 
 export default function App() {
   const [view, setView] = useState('journal')
@@ -17,6 +18,7 @@ export default function App() {
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'weight', label: '⚖️ Weight' },
     { id: 'analytics', label: '📊 Analytics' },
+    { id: 'insights', label: '🧠 Insights' },
     { id: 'log', label: '➕ Log' },
   ]
 
@@ -55,6 +57,7 @@ export default function App() {
           {view === 'journal' && <FitnessModule key={refreshKey} />}
           {view === 'weight' && <WeightModule />}
           {view === 'analytics' && <AnalyticsModule />}
+          {view === 'insights' && <InsightsModule />}
           {view === 'log' && <LogEntry onSuccess={handleLogSuccess} />}
         </div>
       </main>
