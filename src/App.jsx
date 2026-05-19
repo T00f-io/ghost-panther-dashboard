@@ -7,6 +7,7 @@ import InsightsModule from './InsightsModule'
 import ProgramModule from './ProgramModule'
 import MovementLibrary from './MovementLibrary'
 import WorkoutGenerator from './WorkoutGenerator'
+import BodyCompModule from './BodyCompModule'
 import { useUser } from './UserContext'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
   const personalTabs = [
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'weight', label: '⚖️ Weight' },
+    { id: 'bodycomp', label: '📏 Body Comp' },
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
     { id: 'log', label: '➕ Log' },
@@ -99,6 +101,7 @@ export default function App() {
           {view === 'movements' && <MovementLibrary />}
           {view === 'generate' && <WorkoutGenerator user={currentUser} />}
           {view === 'weight' && <WeightModule key={refreshKey} user={currentUser} />}
+          {view === 'bodycomp' && <BodyCompModule key={refreshKey} user={currentUser} />}
           {view === 'analytics' && <AnalyticsModule key={refreshKey} user={currentUser} />}
           {view === 'insights' && <InsightsModule key={refreshKey} user={currentUser} />}
           {view === 'log' && <LogEntry user={currentUser} onSuccess={handleLogSuccess} />}
