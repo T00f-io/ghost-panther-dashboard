@@ -6,6 +6,7 @@ import AnalyticsModule from './AnalyticsModule'
 import InsightsModule from './InsightsModule'
 import ProgramModule from './ProgramModule'
 import MovementLibrary from './MovementLibrary'
+import WorkoutGenerator from './WorkoutGenerator'
 
 export default function App() {
   const [view, setView] = useState('journal')
@@ -20,6 +21,7 @@ export default function App() {
     { id: 'journal', label: '⚔️ Journal' },
     { id: 'program', label: '📋 Program' },
     { id: 'movements', label: '🗂️ Movements' },
+    { id: 'generate', label: '⚡ Generate' },
     { id: 'weight', label: '⚖️ Weight' },
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
@@ -61,6 +63,7 @@ export default function App() {
           {view === 'journal' && <FitnessModule key={refreshKey} />}
           {view === 'program' && <ProgramModule />}
           {view === 'movements' && <MovementLibrary />}
+          {view === 'generate' && <WorkoutGenerator />}
           {view === 'weight' && <WeightModule />}
           {view === 'analytics' && <AnalyticsModule />}
           {view === 'insights' && <InsightsModule />}
