@@ -1,9 +1,16 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
 
+const ARC_OPTIONS = ['Controlled Power', 'Awakening Flow', 'Super Saiyan Resolve', 'Spirit Regeneration']
+const TYPE_OPTIONS = ['Functional Strength Training', 'Strength Training', 'Recovery', 'Ruck', 'NEAT']
+const FOCUS_OPTIONS = ['Med KB Flow + Mobility', 'Heavy KB Strength', 'Traditional Strength', 'Machine Hypertrophy', 'Active Recovery', 'Ruck Day', 'Theme Park', 'Other']
+
 export default function LogEntry({ user, onSuccess }) {
   const [rawText, setRawText] = useState('')
   const [sessionDate, setSessionDate] = useState('')
+  const [arc, setArc] = useState('Controlled Power')
+  const [workoutType, setWorkoutType] = useState('Functional Strength Training')
+  const [focus, setFocus] = useState('Heavy KB Strength')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState(null)
 
@@ -33,10 +40,6 @@ Logging rules:
 Return ONLY a valid JSON object with this exact structure, no explanation, no markdown, no code blocks:
 
 {
-  "arc_name": "string — training arc name if mentioned, otherwise 'Controlled Power'",
-  "workout_type": "string — brief session type description",
-  "effort": "string — effort rating if mentioned, otherwise ''",
-  "focus": "string — training focus if mentioned, otherwise ''",
   "notes": "string — session summary including any Apple Watch stats, flags, and meaningful observations. Direct and concise.",
   "movements": [
     {
@@ -74,10 +77,10 @@ ${rawText}`
         .from('workout_sessions')
         .insert({
           date: sessionDate,
-          arc_name: parsed.arc_name,
-          workout_type: parsed.workout_type,
-          effort: parsed.effort,
-          focus: parsed.focus,
+          arc_name: arc,
+          workout_type: workoutType,
+          focus: focus,
+          effort: '',
           notes: parsed.notes,
           user_slug: user.slug,
         })
@@ -138,6 +141,39 @@ ${rawText}`
             onChange={e => setSessionDate(e.target.value)}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
           />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div>
+            <label className="text-xs text-zinc-500 uppercase tracking-widest mb-1 block">Arc</label>
+            <select
+              value={arc}
+              onChange={e => setArc(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
+            >
+              {ARC_OPTIONS.map(a => <option key={a}>{a}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-zinc-500 uppercase tracking-widest mb-1 block">Workout Type</label>
+            <select
+              value={workoutType}
+              onChange={e => setWorkoutType(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
+            >
+              {TYPE_OPTIONS.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-zinc-500 uppercase tracking-widest mb-1 block">Focus</label>
+            <select
+              value={focus}
+              onChange={e => setFocus(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
+            >
+              {FOCUS_OPTIONS.map(f => <option key={f}>{f}</option>)}
+            </select>
+          </div>
         </div>
 
         <div>

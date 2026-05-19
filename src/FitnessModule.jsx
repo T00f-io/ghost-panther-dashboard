@@ -33,6 +33,8 @@ Athlete profile:
 
 Session date: ${session.date}
 Arc: ${session.arc_name}
+Type: ${session.workout_type || ''}
+Focus: ${session.focus || ''}
 
 Session notes:
 ${session.notes || 'No session note logged.'}
@@ -98,6 +100,8 @@ export default function FitnessModule({ user }) {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({})
   const [arcKey, setArcKey] = useState(0)
+  const [arcFilter, setArcFilter] = useState('All')
+  const [typeFilter, setTypeFilter] = useState('All')
 
   useEffect(() => {
     if (user) fetchData()
@@ -154,6 +158,15 @@ export default function FitnessModule({ user }) {
 
   if (loading) return <p className="text-zinc-500">Loading sessions...</p>
 
+  const arcs = ['All', ...new Set(sessions.map(s => s.arc_name).filter(Boolean))]
+  const types = ['All', ...new Set(sessions.map(s => s.workout_type).filter(Boolean))]
+
+  const filtered = sessions.filter(s => {
+    const matchArc = arcFilter === 'All' || s.arc_name === arcFilter
+    const matchType = typeFilter === 'All' || s.workout_type === typeFilter
+    return matchArc && matchType
+  })
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -165,13 +178,43 @@ export default function FitnessModule({ user }) {
         <StatCard label="Top Implement" value={stats.topImplement} />
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {arcs.map(a => (
+            <button
+              key={a}
+              onClick={() => setArcFilter(a)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                arcFilter === a ? 'bg-white text-zinc-950' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {types.map(t => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                typeFilter === t ? 'bg-white text-zinc-950' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div className="lg:col-span-1 flex flex-col gap-3">
-          {sessions.length === 0 && (
-            <p className="text-zinc-600 text-sm">No sessions logged yet.</p>
+          {filtered.length === 0 && (
+            <p className="text-zinc-600 text-sm">No sessions match your filters.</p>
           )}
-          {sessions.map((s) => (
+          {filtered.map((s) => (
             <button
               key={s.id}
               onClick={() => handleSelect(s)}
@@ -187,6 +230,7 @@ export default function FitnessModule({ user }) {
                 })}
               </p>
               <p className="text-sm font-medium text-white leading-snug">{s.arc_name}</p>
+              {s.focus && <p className="text-xs text-zinc-500 mt-0.5">{s.focus}</p>}
             </button>
           ))}
         </div>
@@ -203,7 +247,11 @@ export default function FitnessModule({ user }) {
                   weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
                 })}
               </p>
-              <h3 className="text-lg font-bold text-white mb-4">{selected.arc_name}</h3>
+              <h3 className="text-lg font-bold text-white mb-1">{selected.arc_name}</h3>
+              <div className="flex gap-2 mb-4">
+                {selected.workout_type && <span className="text-xs text-zinc-500 border border-zinc-800 rounded px-2 py-0.5">{selected.workout_type}</span>}
+                {selected.focus && <span className="text-xs text-zinc-500 border border-zinc-800 rounded px-2 py-0.5">{selected.focus}</span>}
+              </div>
 
               {selected.notes && (
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 mb-4 text-xs text-zinc-400 leading-relaxed">
