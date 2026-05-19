@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts'
 
-const GOAL_WEIGHT = 185
-const START_WEIGHT = 200
-
-export default function WeightModule() {
+export default function WeightModule({ user }) {
   const [logs, setLogs] = useState([])
   const [weight, setWeight] = useState('')
   const [notes, setNotes] = useState('')
@@ -15,13 +12,15 @@ export default function WeightModule() {
   const [status, setStatus] = useState(null)
 
   useEffect(() => {
-    fetchLogs()
-  }, [])
+    if (user) fetchLogs()
+  }, [user])
 
   async function fetchLogs() {
+    setLoading(true)
     const { data } = await supabase
       .from('weight_logs')
       .select('*')
+      .eq('user_slug', user.slug)
       .order('date', { ascending: true })
     if (data) setLogs(data)
     setLoading(false)
@@ -37,7 +36,7 @@ export default function WeightModule() {
 
     const { error } = await supabase
       .from('weight_logs')
-      .upsert({ date, weight_lbs: parseFloat(weight), notes }, { onConflict: 'date' })
+      .upsert({ date, weight_lbs: parseFloat(weight), notes, user_slug: user.slug }, { onConflict: 'date' })
 
     if (error) {
       setStatus('Error saving. Please try again.')
@@ -60,9 +59,13 @@ export default function WeightModule() {
     }
   })
 
+  const goalWeight = user?.goal_weight || 150
+  const startWeight = user?.current_weight || 150
   const currentWeight = logs.length > 0 ? parseFloat(logs[logs.length - 1].weight_lbs) : null
-  const lbsToGoal = currentWeight ? (currentWeight - GOAL_WEIGHT).toFixed(1) : null
-  const lbsLost = currentWeight ? (START_WEIGHT - currentWeight).toFixed(1) : null
+  const lbsToGoal = currentWeight ? (currentWeight - goalWeight).toFixed(1) : null
+  const lbsLost = currentWeight ? (startWeight - currentWeight).toFixed(1) : null
+
+  if (loading) return <p className="text-zinc-500">Loading...</p>
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,7 +77,7 @@ export default function WeightModule() {
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
           <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">Goal</p>
-          <p className="text-xl font-bold text-white">{GOAL_WEIGHT} lbs</p>
+          <p className="text-xl font-bold text-white">{goalWeight} lbs</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
           <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">To Goal</p>
@@ -100,7 +103,7 @@ export default function WeightModule() {
                 labelStyle={{ color: '#a1a1aa' }}
                 itemStyle={{ color: '#ffffff' }}
               />
-              <ReferenceLine y={GOAL_WEIGHT} stroke="#22c55e" strokeDasharray="4 4" label={{ value: 'Goal', fill: '#22c55e', fontSize: 11 }} />
+              <ReferenceLine y={goalWeight} stroke="#22c55e" strokeDasharray="4 4" label={{ value: 'Goal', fill: '#22c55e', fontSize: 11 }} />
               <Line type="monotone" dataKey="weight" stroke="#52525b" strokeWidth={1} dot={{ fill: '#52525b', r: 3 }} name="Daily" />
               <Line type="monotone" dataKey="avg" stroke="#ffffff" strokeWidth={2} dot={false} name="7-day avg" />
             </LineChart>
@@ -114,40 +117,18 @@ export default function WeightModule() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-zinc-500 mb-1 block">Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
-              />
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500" />
             </div>
             <div>
               <label className="text-xs text-zinc-500 mb-1 block">Weight (lbs)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={weight}
-                onChange={e => setWeight(e.target.value)}
-                placeholder="e.g. 197.4"
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
-              />
+              <input type="number" step="0.1" value={weight} onChange={e => setWeight(e.target.value)} placeholder="e.g. 197.4" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500" />
             </div>
           </div>
           <div>
             <label className="text-xs text-zinc-500 mb-1 block">Notes (optional)</label>
-            <input
-              type="text"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="e.g. post-cheat meal, low sleep..."
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
-            />
+            <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g. post-cheat meal, low sleep..." className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500" />
           </div>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full py-2 px-4 rounded-lg bg-white text-zinc-950 text-sm font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50"
-          >
+          <button onClick={handleSave} disabled={saving} className="w-full py-2 px-4 rounded-lg bg-white text-zinc-950 text-sm font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Weight'}
           </button>
           {status === 'success' && <p className="text-sm text-green-400">Weight logged.</p>}

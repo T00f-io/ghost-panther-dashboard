@@ -12,7 +12,7 @@ function StatCard({ label, value }) {
   )
 }
 
-function InsightPanel({ session, movements }) {
+function InsightPanel({ session, movements, user }) {
   const [insight, setInsight] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -24,15 +24,12 @@ function InsightPanel({ session, movements }) {
       `${m.section} -- ${m.movement} (${m.implement}) ${m.sets} sets x ${m.reps} @ ${m.weight}${m.notes && m.notes !== '—' ? ' | Note: ' + m.notes : ''}`
     ).join('\n')
 
-    const prompt = `You are JC's dedicated training coach and journal analyst. Your role is critical-thinking expert advisor -- skeptical by default, research-based, results-oriented. Do not aim to agree or validate. Challenge flawed thinking directly using logic, evidence, and best practices. No fluff, filler, or performative language. Do not open with meta commentary or announce intent. Be clear, concise, and direct.
+    const prompt = `You are ${user.name}'s dedicated training coach and journal analyst. Your role is critical-thinking expert advisor -- skeptical by default, research-based, results-oriented. Do not aim to agree or validate. Challenge flawed thinking directly using logic, evidence, and best practices. No fluff, filler, or performative language. Do not open with meta commentary or announce intent. Be clear, concise, and direct.
 
 Athlete profile:
-- Age: 40, Tampa FL
-- Program: Gohan Training Arc (90 days, ends July 9, 2026)
-- Current phase: Gohan: Controlled Power
-- Training style: Functional strength, KB, sandbag, macebell, clubbell, axel bar, barbell, bodybuilding accessories
-- Primary goals: Fat loss to 185 lbs by October 2026, postural correction, upper chest development, left hip complex strengthening, longevity
-- Known flags: L5-S1 history (asymptomatic), anterior pelvic tilt, forward head posture, thoracic kyphosis, left hamstring tightness, bilateral shoulder impingement history (currently resolved), recurring bilateral knee observations under load, left hip flexor weakness confirmed
+- Name: ${user.name}, Age: ${user.age}, Tampa FL
+- ${user.profile}
+- Known flags: ${user.flags}
 
 Session date: ${session.date}
 Arc: ${session.arc_name}
@@ -94,7 +91,7 @@ Keep post-analysis commentary tight -- only what is actionable or meaningfully o
   )
 }
 
-export default function FitnessModule() {
+export default function FitnessModule({ user }) {
   const [sessions, setSessions] = useState([])
   const [selected, setSelected] = useState(null)
   const [movements, setMovements] = useState([])
@@ -103,18 +100,23 @@ export default function FitnessModule() {
   const [arcKey, setArcKey] = useState(0)
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (user) fetchData()
+  }, [user])
 
   async function fetchData() {
+    setLoading(true)
+    setSelected(null)
+
     const { data: sessionData } = await supabase
       .from('workout_sessions')
       .select('*')
+      .eq('user_slug', user.slug)
       .order('date', { ascending: false })
 
     const { data: movementData } = await supabase
       .from('workout_movements')
       .select('implement')
+      .eq('user_slug', user.slug)
 
     if (sessionData) {
       setSessions(sessionData)
@@ -128,8 +130,9 @@ export default function FitnessModule() {
       const topImplement = Object.entries(implementCount)
         .sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
 
-      const lastDate = new Date(sessionData[0]?.date + 'T00:00:00')
-        .toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      const lastDate = sessionData[0]
+        ? new Date(sessionData[0].date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : '—'
 
       setStats({
         totalSessions: sessionData.length,
@@ -154,7 +157,7 @@ export default function FitnessModule() {
   return (
     <div className="flex flex-col gap-6">
 
-      <ArcConfig key={arcKey} onUpdate={() => setArcKey(k => k + 1)} />
+      <ArcConfig key={arcKey} user={user} onUpdate={() => setArcKey(k => k + 1)} />
 
       <div className="grid grid-cols-3 gap-4">
         <StatCard label="Total Sessions" value={stats.totalSessions} />
@@ -165,6 +168,9 @@ export default function FitnessModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div className="lg:col-span-1 flex flex-col gap-3">
+          {sessions.length === 0 && (
+            <p className="text-zinc-600 text-sm">No sessions logged yet.</p>
+          )}
           {sessions.map((s) => (
             <button
               key={s.id}
@@ -223,7 +229,7 @@ export default function FitnessModule() {
                 ))}
               </div>
 
-              <InsightPanel session={selected} movements={movements} />
+              <InsightPanel session={selected} movements={movements} user={user} />
             </div>
           )}
         </div>
