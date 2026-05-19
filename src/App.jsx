@@ -33,9 +33,16 @@ export default function App() {
 
       {/* Header */}
       <header className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-wide text-white">Ghost Panther Protocol</h1>
-          <p className="text-xs text-zinc-500 tracking-widest uppercase">Personal Fitness OS</p>
+        <div className="flex items-center gap-3">
+          <img
+            src={`${import.meta.env.BASE_URL}logo.png`}
+            alt="Ghost Panther Protocol"
+            className="h-10 w-10 object-contain"
+          />
+          <div>
+            <h1 className="text-xl font-bold tracking-wide text-white">Ghost Panther Protocol</h1>
+            <p className="text-xs text-zinc-500 tracking-widest uppercase">Personal Fitness OS</p>
+          </div>
         </div>
         <span className="text-xs text-zinc-600">T00f-io</span>
       </header>

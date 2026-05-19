@@ -53,6 +53,8 @@ Return ONLY a valid JSON object with this exact structure, no explanation, no ma
   ]
 }
 
+CRITICAL: Only parse movements explicitly mentioned in the raw notes below. Do not add, infer, or invent any movements not directly stated. If a movement is not in the notes, it does not exist.
+
 Raw training notes:
 ${rawText}`
 
