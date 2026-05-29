@@ -8,6 +8,7 @@ import ProgramModule from './ProgramModule'
 import MovementLibrary from './MovementLibrary'
 import WorkoutGenerator from './WorkoutGenerator'
 import BodyCompModule from './BodyCompModule'
+import ArcHistory from './ArcHistory'
 import { useUser } from './UserContext'
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
     { id: 'bodycomp', label: '📏 Body Comp' },
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
+    { id: 'arcs', label: '📜 Arc History' },
     { id: 'log', label: '➕ Log' },
   ]
 
@@ -104,6 +106,7 @@ export default function App() {
           {view === 'bodycomp' && <BodyCompModule key={refreshKey} user={currentUser} />}
           {view === 'analytics' && <AnalyticsModule key={refreshKey} user={currentUser} />}
           {view === 'insights' && <InsightsModule key={refreshKey} user={currentUser} />}
+          {view === 'arcs' && <ArcHistory key={refreshKey} user={currentUser} />}
           {view === 'log' && <LogEntry user={currentUser} onSuccess={handleLogSuccess} />}
         </div>
       </main>
