@@ -2,19 +2,30 @@ import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 
 const PATTERNS = ['All', 'Push', 'Pull', 'Legs', 'Core', 'Mobility']
+const CATEGORIES = ['All', 'Functional', 'Strength', 'Bodyweight', 'Mobility & Recovery']
 const EXERTION_LABELS = { 1: '★☆☆☆☆', 2: '★★☆☆☆', 3: '★★★☆☆', 4: '★★★★☆', 5: '★★★★★' }
+
+const CATEGORY_MAP = {
+  'Functional': ['Kettlebell', 'Macebell', 'Clubbell', 'Sandbag', 'Slamball', 'Battle Ropes', 'TRX'],
+  'Strength': ['Barbell', 'Dumbbell', 'Machine', 'Axel Bar', 'EZ-Bar'],
+  'Bodyweight': ['Bodyweight'],
+  'Mobility & Recovery': ['None', 'Release Ball', 'Lacrosse Ball', 'Bands'],
+}
 
 export default function MovementLibrary() {
   const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [pattern, setPattern] = useState('All')
+  const [category, setCategory] = useState('All')
   const [implement, setImplement] = useState('All')
   const [selected, setSelected] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState(null)
-  const [form, setForm] = useState({ pattern: 'Push', implement: '', movement: '', cues: '', purpose: '', exertion: 3 })
+  const [form, setForm] = useState({
+    pattern: 'Push', implement: '', movement: '', cues: '', purpose: '', exertion: 3
+  })
 
   useEffect(() => {
     fetchMovements()
@@ -64,7 +75,9 @@ export default function MovementLibrary() {
       m.cues?.toLowerCase().includes(search.toLowerCase())
     const matchPattern = pattern === 'All' || m.pattern === pattern
     const matchImplement = implement === 'All' || m.implement === implement
-    return matchSearch && matchPattern && matchImplement
+    const matchCategory = category === 'All' ||
+      (CATEGORY_MAP[category] && CATEGORY_MAP[category].includes(m.implement))
+    return matchSearch && matchPattern && matchImplement && matchCategory
   })
 
   if (loading) return <p className="text-zinc-500">Loading movements...</p>
@@ -72,15 +85,36 @@ export default function MovementLibrary() {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Search and filters */}
-      <div className="flex flex-col gap-3">
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search movements, purpose, or cues..."
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600"
-        />
+      {/* Search */}
+      <input
+        type="text"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search movements, purpose, or cues..."
+        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600"
+      />
+
+      {/* Category filter */}
+      <div>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Category</p>
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIES.map(c => (
+            <button
+              key={c}
+              onClick={() => { setCategory(c); setImplement('All') }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                category === c ? 'bg-white text-zinc-950' : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Pattern filter */}
+      <div>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Pattern</p>
         <div className="flex gap-2 flex-wrap">
           {PATTERNS.map(p => (
             <button
@@ -94,6 +128,11 @@ export default function MovementLibrary() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Implement filter */}
+      <div>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Implement</p>
         <div className="flex gap-2 flex-wrap">
           {implementList.map(imp => (
             <button
@@ -200,8 +239,6 @@ export default function MovementLibrary() {
 
       {/* Movement list + detail */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-        {/* List */}
         <div className="flex flex-col gap-2">
           {filtered.map((m, i) => (
             <button
@@ -229,7 +266,6 @@ export default function MovementLibrary() {
           )}
         </div>
 
-        {/* Detail */}
         <div className="lg:sticky lg:top-6">
           {selected ? (
             <div className="border border-zinc-700 rounded-xl p-5 bg-zinc-900">
