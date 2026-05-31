@@ -102,6 +102,7 @@ ${rawText}`
       const clean = text.replace(/```json|```/g, '').trim()
       const parsed = JSON.parse(clean)
 
+      // Insert session
       const { data: sessionData, error: sessionError } = await supabase
         .from('workout_sessions')
         .insert({
@@ -118,6 +119,7 @@ ${rawText}`
 
       if (sessionError) throw new Error(sessionError.message)
 
+      // Insert movements
       const movements = parsed.movements.map(m => ({
         session_id: sessionData.id,
         section: m.section,
@@ -136,6 +138,57 @@ ${rawText}`
 
       if (movError) throw new Error(movError.message)
 
+      // Auto-detect injuries
+      const injuryPrompt = `Analyze these workout notes for injury signals, pain, discomfort, or compensation patterns.
+
+Notes: ${parsed.notes}
+Movements: ${parsed.movements.map(m => m.notes).filter(Boolean).join('. ')}
+
+If you find ANY injury signals return a JSON array. If nothing found return an empty array [].
+Return ONLY valid JSON, no markdown:
+
+[
+  {
+    "body_area": "one of: Lower Back, Upper Back, Left Shoulder, Right Shoulder, Left Hip, Right Hip, Left Knee, Right Knee, Left Hamstring, Right Hamstring, Left Ankle, Right Ankle, Neck, Left Elbow, Right Elbow, Core, Other",
+    "severity": "one of: Mild, Moderate, Severe",
+    "notes": "brief description of what was flagged"
+  }
+]`
+
+      const injuryResponse = await fetch('https://gpp-api-worker.t00f-io.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 500,
+          messages: [{ role: 'user', content: injuryPrompt }]
+        })
+      })
+
+      const injuryData = await injuryResponse.json()
+      const injuryText = injuryData.content?.[0]?.text || '[]'
+      const injuryClean = injuryText.replace(/```json|```/g, '').trim()
+
+      try {
+        const detectedInjuries = JSON.parse(injuryClean)
+        if (detectedInjuries.length > 0) {
+          const injuriesToInsert = detectedInjuries.map(inj => ({
+            user_slug: user.slug,
+            date: sessionDate,
+            body_area: inj.body_area,
+            severity: inj.severity,
+            status: 'active',
+            source: 'auto',
+            session_id: sessionData.id,
+            notes: inj.notes,
+          }))
+          await supabase.from('injuries').insert(injuriesToInsert)
+        }
+      } catch (e) {
+        console.log('Injury detection parse error:', e.message)
+      }
+
+      // Save raw log
       await supabase.from('raw_logs').insert({
         raw_text: rawText,
         session_date: sessionDate,
@@ -183,7 +236,6 @@ ${rawText}`
           </select>
         </div>
 
-        {/* AI categorize toggle */}
         <div className="flex items-center gap-3 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3">
           <input
             type="checkbox"
@@ -197,7 +249,6 @@ ${rawText}`
           </label>
         </div>
 
-        {/* Manual dropdowns -- greyed out when AI categorize is on */}
         {!aiCategorize && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div>
@@ -229,7 +280,7 @@ ${rawText}`
             value={rawText}
             onChange={e => setRawText(e.target.value)}
             rows={10}
-            placeholder="Paste your raw Drafts notes here. Include Apple Watch stats if available..."
+            placeholder="Paste your raw notes here. Include Apple Watch stats if available..."
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-500 resize-none"
           />
         </div>

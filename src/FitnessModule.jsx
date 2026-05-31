@@ -3,6 +3,65 @@ import { supabase } from './supabaseClient'
 import ReactMarkdown from 'react-markdown'
 import ArcConfig from './ArcConfig'
 
+function InjuryBanner({ user }) {
+  const [activeInjuries, setActiveInjuries] = useState([])
+
+  useEffect(() => {
+    async function fetchInjuries() {
+      const { data } = await supabase
+        .from('injuries')
+        .select('*')
+        .eq('user_slug', user.slug)
+        .in('status', ['active', 'monitoring'])
+        .order('date', { ascending: false })
+      if (data) setActiveInjuries(data)
+    }
+    fetchInjuries()
+  }, [user])
+
+  if (activeInjuries.length === 0) return null
+
+  const SEVERITY_COLORS = {
+    'Mild': 'border-yellow-700 bg-yellow-950',
+    'Moderate': 'border-orange-700 bg-orange-950',
+    'Severe': 'border-red-700 bg-red-950',
+  }
+
+  const SEVERITY_TEXT = {
+    'Mild': 'text-yellow-400',
+    'Moderate': 'text-orange-400',
+    'Severe': 'text-red-400',
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {activeInjuries.map((injury, i) => (
+        <div key={i} className={`border rounded-xl px-5 py-3 flex items-center justify-between ${SEVERITY_COLORS[injury.severity]}`}>
+          <div className="flex items-center gap-3">
+            <span className="text-lg">🩹</span>
+            <div>
+              <p className={`text-sm font-medium ${SEVERITY_TEXT[injury.severity]}`}>
+                {injury.body_area} -- {injury.severity}
+              </p>
+              {injury.notes && (
+                <p className="text-xs text-zinc-400 mt-0.5 truncate max-w-md">{injury.notes}</p>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-zinc-500">
+              {new Date(injury.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </p>
+            <p className={`text-xs ${injury.status === 'active' ? 'text-red-400' : 'text-yellow-400'}`}>
+              {injury.status}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function StatCard({ label, value }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4">
@@ -172,13 +231,14 @@ export default function FitnessModule({ user }) {
 
       <ArcConfig key={arcKey} user={user} onUpdate={() => setArcKey(k => k + 1)} />
 
+      <InjuryBanner user={user} />
+
       <div className="grid grid-cols-3 gap-4">
         <StatCard label="Total Sessions" value={stats.totalSessions} />
         <StatCard label="Last Session" value={stats.lastSession} />
         <StatCard label="Top Implement" value={stats.topImplement} />
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col gap-2">
         <div className="flex gap-2 flex-wrap">
           {arcs.map(a => (
