@@ -10,12 +10,13 @@ import WorkoutGenerator from './WorkoutGenerator'
 import BodyCompModule from './BodyCompModule'
 import ArcHistory from './ArcHistory'
 import ProfileModule from './ProfileModule'
+import InjuryModule from './InjuryModule'
 import { useUser } from './UserContext'
 
 export default function App() {
   const [view, setView] = useState('journal')
   const [refreshKey, setRefreshKey] = useState(0)
-  const { users, currentUser, setCurrentUser, refreshUsers } = useUser()
+  const { users, currentUser, setCurrentUser } = useUser()
 
   function handleLogSuccess() {
     setRefreshKey(k => k + 1)
@@ -29,6 +30,7 @@ export default function App() {
     { id: 'analytics', label: '📊 Analytics' },
     { id: 'insights', label: '🧠 Insights' },
     { id: 'arcs', label: '📜 Arc History' },
+    { id: 'injuries', label: '🩹 Injuries' },
     { id: 'profile', label: '👤 Profile' },
     { id: 'log', label: '➕ Log' },
   ]
@@ -109,6 +111,7 @@ export default function App() {
           {view === 'analytics' && <AnalyticsModule key={refreshKey} user={currentUser} />}
           {view === 'insights' && <InsightsModule key={refreshKey} user={currentUser} />}
           {view === 'arcs' && <ArcHistory key={refreshKey} user={currentUser} />}
+          {view === 'injuries' && <InjuryModule key={refreshKey} user={currentUser} />}
           {view === 'profile' && <ProfileModule user={currentUser} onUpdate={() => setRefreshKey(k => k + 1)} />}
           {view === 'log' && <LogEntry user={currentUser} onSuccess={handleLogSuccess} />}
         </div>
