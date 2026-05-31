@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghost Panther Protocol — Project Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --zinc-950: #09090b;
+    --zinc-900: #18181b;
+    --zinc-800: #27272a;
+    --zinc-700: #3f3f46;
+    --zinc-500: #71717a;
+    --zinc-400: #a1a1aa;
+    --zinc-200: #e4e4e7;
+    --white: #fafafa;
+    --accent: #c8ff00;
+    --accent-dim: rgba(200, 255, 0, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(200,255,0,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px 80px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 8vw, 120px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 32px;
+  }
+
+  .hero-title span {
+    display: block;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--zinc-400);
+    max-width: 480px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+
+  .hero-links {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: var(--black);
+    padding: 14px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--white); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--zinc-700);
+    color: var(--zinc-400);
+    padding: 14px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--white); color: var(--white); }
+
+  .hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 80px 80px 40px;
+    position: relative;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .stat-card {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.2s; }
+  .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat-card:hover::before { opacity: 1; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .stat-num span { color: var(--accent); font-size: 32px; }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--zinc-500);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--zinc-800);
+    margin: 0 80px;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 100px 80px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--zinc-800);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 1;
+    margin-bottom: 60px;
+    letter-spacing: 0.02em;
+  }
+
+  /* PROBLEM/SOLUTION */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .prose-block h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--zinc-500);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .prose-block p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--zinc-400);
+    font-weight: 300;
+    margin-bottom: 16px;
+  }
+
+  .prose-block p:last-child { margin-bottom: 0; }
+
+  /* TECH STACK */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2px;
+  }
+
+  .tech-item {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 24px;
+    transition: all 0.2s;
+  }
+
+  .tech-item:hover {
+    border-color: var(--zinc-600);
+    background: var(--zinc-800);
+  }
+
+  .tech-item-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .tech-item-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .tech-item-desc {
+    font-size: 12px;
+    color: var(--zinc-500);
+    line-height: 1.5;
+  }
+
+  /* SPRINTS */
+  .sprint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sprint-item {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 32px 36px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 40px;
+    align-items: start;
+    transition: border-color 0.2s;
+  }
+
+  .sprint-item:hover { border-color: var(--zinc-600); }
+
+  .sprint-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--zinc-800);
+    line-height: 1;
+  }
+
+  .sprint-num.active { color: var(--accent); }
+
+  .sprint-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .sprint-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sprint-features li {
+    font-size: 13px;
+    color: var(--zinc-400);
+    font-weight: 300;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .sprint-features li::before {
+    content: '→';
+    color: var(--zinc-600);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .sprint-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-bottom: 16px;
+  }
+
+  .badge-complete { background: var(--accent-dim); color: var(--accent); }
+  .badge-planned { background: rgba(113,113,122,0.15); color: var(--zinc-500); }
+
+  /* FEATURES GRID */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .feature-card {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 32px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-card:hover { border-color: var(--zinc-600); }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .feature-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: var(--zinc-500);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* PIPELINE */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 40px 0;
+  }
+
+  .pipeline-step {
+    flex-shrink: 0;
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 24px 28px;
+    text-align: center;
+    min-width: 160px;
+  }
+
+  .pipeline-step-icon { font-size: 24px; margin-bottom: 10px; }
+
+  .pipeline-step-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--white);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .pipeline-step-desc {
+    font-size: 11px;
+    color: var(--zinc-600);
+  }
+
+  .pipeline-arrow {
+    flex-shrink: 0;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    padding: 0 8px;
+  }
+
+  /* PORTFOLIO */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .portfolio-item {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    padding: 36px;
+  }
+
+  .portfolio-item-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .portfolio-item-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .portfolio-item-desc {
+    font-size: 13px;
+    color: var(--zinc-500);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 60px 80px;
+    border-top: 1px solid var(--zinc-800);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.05em;
+  }
+
+  .footer-left span { color: var(--accent); }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--zinc-600);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  .footer-right a {
+    color: var(--zinc-400);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-right a:hover { color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 60px 32px; }
+    .hero-right { padding: 0 32px 60px; }
+    .section { padding: 60px 32px; }
+    .divider { margin: 0 32px; }
+    .two-col { grid-template-columns: 1fr; gap: 40px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .sprint-item { grid-template-columns: 1fr; gap: 16px; }
+    .sprint-num { font-size: 32px; }
+    .footer { flex-direction: column; gap: 24px; padding: 40px 32px; text-align: center; }
+    .footer-right { text-align: center; }
+    .tech-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Portfolio Project · AI Engineering</div>
+    <h1 class="hero-title">
+      Ghost<br>Panther<br><span>Protocol</span>
+    </h1>
+    <p class="hero-desc">
+      A production-grade personal fitness OS built from zero to deployment. Full-stack AI engineering — React frontend, PostgreSQL database, Claude API coaching intelligence, and an automated iOS capture pipeline.
+    </p>
+    <div class="hero-links">
+      <a href="https://T00f-io.github.io/ghost-panther-dashboard" target="_blank" class="btn-primary">
+        View Live Dashboard →
+      </a>
+      <a href="https://github.com/T00f-io/ghost-panther-dashboard" target="_blank" class="btn-secondary">
+        GitHub Repo
+      </a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num">4<span>+</span></div>
+        <div class="stat-label">Sprints Shipped</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">70<span>+</span></div>
+        <div class="stat-label">Movements in DB</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">12<span>+</span></div>
+        <div class="stat-label">Tabs & Modules</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">0<span>$</span></div>
+        <div class="stat-label">Monthly Hosting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM / SOLUTION -->
+<section class="section">
+  <div class="section-label">The Brief</div>
+  <h2 class="section-title">Problem → Solution</h2>
+  <div class="two-col">
+    <div class="prose-block">
+      <h3>The Problem</h3>
+      <p>Training 4–5x per week on a structured 90-day program generated detailed session data with nowhere to live efficiently. The existing workflow required dictating notes in Drafts on iOS, running them through a specialized AI agent, manually copying formatted output into Google Sheets, and performing analysis separately.</p>
+      <p>High friction. Inconsistent logging. No real-time coaching feedback. No trend visibility. Data siloed across multiple tools with no intelligence layer.</p>
+    </div>
+    <div class="prose-block">
+      <h3>The Solution</h3>
+      <p>A full-stack AI-powered personal fitness OS that accepts raw workout notes directly, parses them using the Claude API, stores all training data in a structured PostgreSQL database, and surfaces coaching insights at the session, weekly, and arc level.</p>
+      <p>One tap from Apple Notes sends a workout through a Cloudflare Worker, through Claude, and into Supabase — then auto-deletes the note. Zero manual data entry. Zero Google Sheets. Real coaching intelligence on every session.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TECH STACK -->
+<section class="section">
+  <div class="section-label">Architecture</div>
+  <h2 class="section-title">Tech Stack</h2>
+  <div class="tech-grid">
+    <div class="tech-item">
+      <div class="tech-item-icon">⚛️</div>
+      <div class="tech-item-name">React + Vite</div>
+      <div class="tech-item-desc">Component-based UI with Tailwind CSS. Deployed to GitHub Pages.</div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-item-icon">🐘</div>
+      <div class="tech-item-name">Supabase</div>
+      <div class="tech-item-desc">PostgreSQL database with row-level security. 9 tables, relational schema.</div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-item-icon">🤖</div>
+      <div class="tech-item-name">Claude API</div>
+      <div class="tech-item-desc">Anthropic claude-sonnet-4-5. Parsing, insights, generation, injury detection.</div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-item-icon">⚡</div>
+      <div class="tech-item-name">Cloudflare Workers</div>
+      <div class="tech-item-desc">Two Workers: API proxy layer and automated log ingestion pipeline.</div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-item-icon">📱</div>
+      <div class="tech-item-name">Apple Shortcuts</div>
+      <div class="tech-item-desc">iOS automation triggering the log pipeline from Apple Notes.</div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-item-icon">🚀</div>
+      <div class="tech-item-name">GitHub Pages</div>
+      <div class="tech-item-desc">Free static hosting with CI/CD via gh-pages deploy pipeline.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE -->
+<section class="section">
+  <div class="section-label">Automation</div>
+  <h2 class="section-title">Capture Pipeline</h2>
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">📝</div>
+      <div class="pipeline-step-name">Apple Notes</div>
+      <div class="pipeline-step-desc">Raw workout notes in WoD folder</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">📱</div>
+      <div class="pipeline-step-name">iOS Shortcut</div>
+      <div class="pipeline-step-desc">One tap triggers HTTP POST</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">⚡</div>
+      <div class="pipeline-step-name">CF Worker</div>
+      <div class="pipeline-step-desc">Parses header, routes to Claude</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">🤖</div>
+      <div class="pipeline-step-name">Claude API</div>
+      <div class="pipeline-step-desc">Structures movements + detects injuries</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">🐘</div>
+      <div class="pipeline-step-name">Supabase</div>
+      <div class="pipeline-step-desc">Sessions + movements + injuries written</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-icon">🗑️</div>
+      <div class="pipeline-step-name">Auto-Delete</div>
+      <div class="pipeline-step-desc">Note removed, template recreated</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title">Features Built</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚔️</div>
+      <div class="feature-title">Training Journal</div>
+      <div class="feature-desc">Full session history with arc/type filters, movement detail view, and per-session AI coaching insights with injury flag detection.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">AI Insights Layer</div>
+      <div class="feature-desc">Three tiers of Claude-powered analysis: per-session coaching, 7-day weekly summary, and full arc report with progression patterns.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Workout Generator</div>
+      <div class="feature-desc">AI builds custom sessions from your movement library and equipment database. Select location, time, focus, and effort — log directly to journal.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🩹</div>
+      <div class="feature-title">Injury Tracker</div>
+      <div class="feature-desc">Auto-detection on every log entry. Manual entry for off-training flare-ups. Active injury banner surfaces in Journal. Status management.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚖️</div>
+      <div class="feature-title">Weight & Body Comp</div>
+      <div class="feature-desc">Daily weight logging with 7-day rolling average, goal line at 185 lbs, trend chart, and monthly body composition check-ins with delta tracking.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Analytics</div>
+      <div class="feature-desc">Sessions per week, implement frequency, top movements, focus breakdown — all filterable by arc for cross-arc comparison.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗂️</div>
+      <div class="feature-title">Movement Library</div>
+      <div class="feature-desc">70+ movements with cues, purpose, and exertion. Filterable by Category, Pattern, and Implement. Add custom movements to the database.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👥</div>
+      <div class="feature-title">Multi-User Support</div>
+      <div class="feature-desc">Personal data scoped by user slug. Shared movement library and program database. User toggle in header. Profile editor per user.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📜</div>
+      <div class="feature-title">Arc History</div>
+      <div class="feature-desc">Full arc lifecycle management. Progress tracking, session browser per arc, mark complete flow, cross-arc data preservation.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SPRINTS -->
+<section class="section">
+  <div class="section-label">Build History</div>
+  <h2 class="section-title">Sprint Log</h2>
+  <div class="sprint-list">
+
+    <div class="sprint-item">
+      <div>
+        <div class="sprint-num active">01</div>
+        <div class="sprint-badge badge-complete">Complete</div>
+      </div>
+      <div>
+        <div class="sprint-title">Foundation</div>
+        <ul class="sprint-features">
+          <li>React + Vite scaffold, GitHub Pages CI/CD deployment</li>
+          <li>Supabase PostgreSQL integration, data import from Google Sheets</li>
+          <li>Fitness module with stats, session list, movement detail</li>
+          <li>Claude API insights via Cloudflare Worker proxy</li>
+          <li>Markdown rendering for AI output</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-item">
+      <div>
+        <div class="sprint-num active">02</div>
+        <div class="sprint-badge badge-complete">Complete</div>
+      </div>
+      <div>
+        <div class="sprint-title">Core Features</div>
+        <ul class="sprint-features">
+          <li>Direct workout log entry — raw notes parsed by Claude into structured DB records</li>
+          <li>Parser prompt engineering matched to personal training agent persona</li>
+          <li>Weight tracking with 7-day rolling average and trend chart</li>
+          <li>Training volume analytics, arc progression banner</li>
+          <li>Arc management with configurable name, start date, duration</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-item">
+      <div>
+        <div class="sprint-num active">03</div>
+        <div class="sprint-badge badge-complete">Complete</div>
+      </div>
+      <div>
+        <div class="sprint-title">AI Intelligence Layer</div>
+        <ul class="sprint-features">
+          <li>Cross-session arc report and weekly AI summary in Insights tab</li>
+          <li>Program database — 6 day types with full movement reference</li>
+          <li>Movement library — 70+ movements, searchable and filterable</li>
+          <li>Equipment database — full home gym inventory in Supabase</li>
+          <li>AI Workout Generator pulling from movement and equipment databases</li>
+          <li>Multi-user support, body comp tracker, RLS security, Shortcuts pipeline</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-item">
+      <div>
+        <div class="sprint-num active">04</div>
+        <div class="sprint-badge badge-complete">Complete</div>
+      </div>
+      <div>
+        <div class="sprint-title">Polish & Intelligence</div>
+        <ul class="sprint-features">
+          <li>Movement library Category filter (Functional, Strength, Bodyweight, Mobility)</li>
+          <li>Cross-arc history with arc lifecycle management and session browser</li>
+          <li>Workout Generator — log generated sessions directly to journal</li>
+          <li>User profile editor, analytics by arc, focus breakdown chart</li>
+          <li>Injury tracker with auto-detection on log, manual entry, active banner</li>
+          <li>Cloudflare Worker log pipeline with date parsing and AI categorization</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-item">
+      <div>
+        <div class="sprint-num">05</div>
+        <div class="sprint-badge badge-planned">Planned</div>
+      </div>
+      <div>
+        <div class="sprint-title">Feedback & Expansion</div>
+        <ul class="sprint-features">
+          <li>User feedback revisions from live usage</li>
+          <li>Anna's arc setup and mobility program</li>
+          <li>Body comp photo tracker</li>
+          <li>Export feature — CSV/PDF download</li>
+          <li>Push notifications for daily weight logging</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PORTFOLIO VALUE -->
+<section class="section">
+  <div class="section-label">Portfolio Value</div>
+  <h2 class="section-title">Skills Demonstrated</h2>
+  <div class="portfolio-grid">
+    <div class="portfolio-item">
+      <div class="portfolio-item-label">Full-Stack Engineering</div>
+      <div class="portfolio-item-title">React Frontend to PostgreSQL Backend</div>
+      <div class="portfolio-item-desc">Designed and built a complete full-stack application from zero — component architecture, relational database schema with 9 tables, REST API integration, and CI/CD deployment pipeline. Every layer architected and implemented independently.</div>
+    </div>
+    <div class="portfolio-item">
+      <div class="portfolio-item-label">AI Integration</div>
+      <div class="portfolio-item-title">Claude API — Four Distinct Use Cases</div>
+      <div class="portfolio-item-desc">Structured data parsing from unformatted text, per-session coaching analysis, cross-session pattern detection, custom workout generation, and real-time injury signal detection. Each prompt engineered for specific output format and persona consistency.</div>
+    </div>
+    <div class="portfolio-item">
+      <div class="portfolio-item-label">Security Architecture</div>
+      <div class="portfolio-item-title">Cloudflare Worker API Proxy Layer</div>
+      <div class="portfolio-item-desc">Designed a two-Worker architecture to protect API credentials on a public GitHub Pages frontend. Production-grade security pattern directly applicable to enterprise AI product development. Row-level security enabled across all Supabase tables.</div>
+    </div>
+    <div class="portfolio-item">
+      <div class="portfolio-item-label">Pipeline Engineering</div>
+      <div class="portfolio-item-title">iOS Automation to Database in One Tap</div>
+      <div class="portfolio-item-desc">Engineered an end-to-end automated data capture pipeline: Apple Notes → iOS Shortcut → Cloudflare Worker → Claude API → Supabase → auto-delete. Zero manual data entry. Replaced a four-step manual workflow with a single tap.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-left">Ghost Panther <span>Protocol</span></div>
+  <div class="footer-right">
+    Built by JC Lopez · T00f-io<br>
+    <a href="https://T00f-io.github.io/ghost-panther-dashboard" target="_blank">Live Dashboard</a> ·
+    <a href="https://github.com/T00f-io/ghost-panther-dashboard" target="_blank">GitHub</a><br>
+    React · Supabase · Claude API · Cloudflare Workers
+  </div>
+</footer>
+
+</body>
+</html>
+```
